@@ -51,7 +51,7 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
   end
 
   def self.url_prefix
-    "#{Puppet[:puppet_url_prefix]}/v3"
+    "#{Puppet[:master_url_prefix]}/v3"
   end
 
   def uri2indirection(http_method, uri, params)
