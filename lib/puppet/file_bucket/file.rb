@@ -77,12 +77,12 @@ class Puppet::FileBucket::File
 
   def to_data_hash
     # Note that this serializes the entire data to a string and places it in a hash.
-    { "environment" => environment,
+    { "environment_name" => environment.name,
       "contents" => contents.to_s }
   end
 
   def self.from_data_hash(data)
-    self.new(data["environment"], data["contents"])
+    self.new(data["environment_name"], data["contents"])
   end
 
   private

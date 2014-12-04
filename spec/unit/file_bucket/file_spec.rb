@@ -20,7 +20,8 @@ describe Puppet::FileBucket::File, :uses_checksums => true do
   describe "making round trips through network formats" do
     with_digest_algorithms do
       it "can make a round trip through `pson`" do
-        file = Puppet::FileBucket::File.new("production", plaintext)
+        environment = Puppet::Node::Environment.new("production")
+        file = Puppet::FileBucket::File.new(environment, plaintext)
         tripped = Puppet::FileBucket::File.convert_from(:pson, file.render)
         expect(tripped.contents).to eq(plaintext)
       end
