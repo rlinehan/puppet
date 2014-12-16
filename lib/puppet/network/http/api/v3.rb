@@ -1,6 +1,6 @@
 require 'puppet/network/authorization'
 
-class Puppet::Network::HTTP::API::V1
+class Puppet::Network::HTTP::API::V3
   include Puppet::Network::Authorization
 
   # How we map http methods and the indirection name in the URI
@@ -25,7 +25,7 @@ class Puppet::Network::HTTP::API::V1
   }
 
   def self.routes
-    Puppet::Network::HTTP::Route.path(/.*/).any(new)
+    Puppet::Network::HTTP::Route.path(%r{^/v3}).any(new)
   end
 
   # handle an HTTP request
@@ -58,7 +58,9 @@ class Puppet::Network::HTTP::API::V1
   end
 
   def uri2indirection(http_method, uri, params)
-    indirection, key = uri.split("/", 3)[1..-1] # the first field is always nil because of the leading slash
+    # the first field is always nil because of the leading slash,
+    # and we also want to strip off the leading /v3.
+    indirection, key = uri.split("/", 4)[2..-1]
     environment = params.delete(:environment)
 
     if ! Puppet::Node::Environment.valid_name?(environment)
@@ -208,7 +210,7 @@ class Puppet::Network::HTTP::API::V1
 
   def self.request_to_uri_and_body(request)
     indirection = request.method == :search ? pluralize(request.indirection_name.to_s) : request.indirection_name.to_s
-    ["/#{indirection}/#{request.escaped_key}", "environment=#{request.environment.name}&#{request.query_string}"]
+    ["/v3/#{indirection}/#{request.escaped_key}", "environment=#{request.environment.name}&#{request.query_string}"]
   end
 
   def self.pluralize(indirection)
