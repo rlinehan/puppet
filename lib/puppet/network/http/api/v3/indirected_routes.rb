@@ -26,8 +26,15 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
 
   # handle an HTTP request
   def call(request, response)
-    indirection, method, key, params = uri2indirection(request)
+    indirection_name, method, key, params = uri2indirection(request.method, request.path, request.params)
     certificate = request.client_cert
+
+    check_authorization(method, "/#{indirection_name}/#{key}", params)
+
+    indirection = Puppet::Indirector::Indirection.instance(indirection_name.to_sym)
+    if !indirection
+      raise ArgumentError, "Could not find indirection '#{indirection_name}'"
+    end
 
     if !indirection.allow_remote_requests?
       # TODO: should we tell the user we found an indirection but it doesn't
@@ -46,60 +53,41 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
     return do_exception(response, e)
   end
 
-  def uri2indirection(request)
+  def uri2indirection(http_method, uri, params)
     # the first field is always nil because of the leading slash,
     # and we also want to strip off the leading /v3.
-    indirection_name, key = request.path.split("/", 4)[2..-1]
-
-    if indirection_name !~ /^\w+$/
-      raise ArgumentError, "The indirection name must be purely alphanumeric, not '#{indirection_name}'"
-    end
-
-    method = indirection_method(request.method, indirection_name)
-    check_authorization(method, "/v3/#{indirection_name}/#{key}", request.params)
-
-    indirection = Puppet::Indirector::Indirection.instance(indirection_name.to_sym)
-    if !indirection
-      raise ArgumentError, "Could not find indirection '#{indirection_name}'"
-    end
-
-    if method == :save
-      # In the case of a PUT request which maps to a `save` indirection, the HTTP
-      # specification doesn't allow a query string, so we can't put the environment
-      # there.  It needs to go in the request body.  However, since the
-      # indirector hides the deserialization of the body behind the 'model' object
-      # for each different indirection, we need to go ahead and deserialize the
-      # body into the indirector model object and then read the environment from there.
-      model_object = read_body_into_model(indirection.model, request)
-      environment = model_object.environment
-      request.params[:model_object] = model_object
-    else
-      environment = request.params.delete(:environment)
-    end
+    indirection, key = uri.split("/", 4)[2..-1]
+    environment = params.delete(:environment)
 
     if ! Puppet::Node::Environment.valid_name?(environment)
       raise ArgumentError, "The environment must be purely alphanumeric, not '#{environment}'"
     end
 
+    if indirection !~ /^\w+$/
+      raise ArgumentError, "The indirection name must be purely alphanumeric, not '#{indirection}'"
+    end
+
+    method = indirection_method(http_method, indirection)
+
     configured_environment = Puppet.lookup(:environments).get(environment)
-    if configured_environment.nil?
+     if configured_environment.nil?
       raise Puppet::Network::HTTP::Error::HTTPNotFoundError.new(
                 "Could not find environment '#{environment}'",
                 Puppet::Network::HTTP::Issues::ENVIRONMENT_NOT_FOUND)
     else
       configured_environment = configured_environment.override_from_commandline(Puppet.settings)
-      request.params[:environment] = configured_environment
+      params[:environment] = configured_environment
     end
 
-    request.params.delete(:bucket_path)
+    params.delete(:bucket_path)
 
     if key == "" or key.nil?
-      raise ArgumentError, "No request key specified in #{request.path}"
+      raise ArgumentError, "No request key specified in #{uri}"
     end
 
     key = URI.unescape(key)
 
-    [indirection, method, key, request.params]
+    [indirection, method, key, params]
   end
 
   private
@@ -209,19 +197,14 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
     method
   end
 
-  def self.indirection2uri(request)
-    indirection = request.method == :search ? pluralize(request.indirection_name.to_s) : request.indirection_name.to_s
-    "/v3/#{indirection}/#{request.escaped_key}?#{request.query_string}"
-  end
-
-  def self.request_to_uri_with_env(request)
-    indirection = request.method == :search ? pluralize(request.indirection_name.to_s) : request.indirection_name.to_s
-    "/v3/#{indirection}/#{request.escaped_key}?environment=#{request.environment.to_s}&#{request.query_string}"
+  def self.request_to_uri(request)
+    uri, body = request_to_uri_and_body(request)
+    "#{uri}?#{body}"
   end
 
   def self.request_to_uri_and_body(request)
     indirection = request.method == :search ? pluralize(request.indirection_name.to_s) : request.indirection_name.to_s
-    ["/v3/#{indirection}/#{request.escaped_key}", "environment=#{request.environment.to_s}&#{request.query_string}"]
+    ["/v3/#{indirection}/#{request.escaped_key}", "environment=#{request.environment.name}&#{request.query_string}"]
   end
 
   def self.pluralize(indirection)
