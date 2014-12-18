@@ -424,13 +424,9 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
       data = Puppet::IndirectorTesting.new("my data")
       request = a_request_that_submits(data)
 
-      puts data.inspect
-
       handler.call(request, response)
-      puts response.inspect
 
       saved = Puppet::IndirectorTesting.indirection.find("my data")
-      puts saved.inspect
       expect(saved.name).to eq(data.name)
     end
 
@@ -449,7 +445,6 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
       request = a_request_that_submits(data, :accept_header => "unknown, text/pson")
 
       handler.call(request, response)
-      puts response.inspect
 
       expect(response.body).to eq(data.render(:pson))
       expect(response.type).to eq(Puppet::Network::FormatHandler.format(:pson))
