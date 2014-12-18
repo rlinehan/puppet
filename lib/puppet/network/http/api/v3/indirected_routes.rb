@@ -26,17 +26,11 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
 
   # handle an HTTP request
   def call(request, response)
-    indirection_name, method, key, params = uri2indirection(request.method, request.path, request.params)
+    indirection, method, key, params = uri2indirection(request.method, request.path, request.params)
     certificate = request.client_cert
 
-    check_authorization(method, "/#{indirection_name}/#{key}", params)
-
-    indirection = Puppet::Indirector::Indirection.instance(indirection_name.to_sym)
-    if !indirection
-      raise ArgumentError, "Could not find indirection '#{indirection_name}'"
-    end
-
     if !indirection.allow_remote_requests?
+
       # TODO: should we tell the user we found an indirection but it doesn't
       # allow remote requests, or just pretend there's no handler at all? what
       # are the security implications for the former?
@@ -56,18 +50,24 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
   def uri2indirection(http_method, uri, params)
     # the first field is always nil because of the leading slash,
     # and we also want to strip off the leading /v3.
-    indirection, key = uri.split("/", 4)[2..-1]
+    indirection_name, key = uri.split("/", 4)[2..-1]
     environment = params.delete(:environment)
+
+    if indirection_name !~ /^\w+$/
+      raise ArgumentError, "The indirection name must be purely alphanumeric, not '#{indirection_name}'"
+    end
+
+    method = indirection_method(http_method, indirection_name)
+    check_authorization(method, "/v3/#{indirection_name}/#{key}", params)
+
+    indirection = Puppet::Indirector::Indirection.instance(indirection_name.to_sym)
+    if !indirection
+      raise ArgumentError, "Could not find indirection '#{indirection_name}'"
+    end
 
     if ! Puppet::Node::Environment.valid_name?(environment)
       raise ArgumentError, "The environment must be purely alphanumeric, not '#{environment}'"
     end
-
-    if indirection !~ /^\w+$/
-      raise ArgumentError, "The indirection name must be purely alphanumeric, not '#{indirection}'"
-    end
-
-    method = indirection_method(http_method, indirection)
 
     configured_environment = Puppet.lookup(:environments).get(environment)
      if configured_environment.nil?
@@ -165,7 +165,9 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
   # Execute our save.
   def do_save(indirection, key, params, request, response)
     formatter = accepted_response_formatter_or_pson_for(indirection.model, request)
-    result = indirection.save(params[:model_object], key)
+    sent_object = read_body_into_model(indirection.model, request)
+
+    result = indirection.save(sent_object, key)
 
     response.respond_with(200, formatter, formatter.render(result))
   end
