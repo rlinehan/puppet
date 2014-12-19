@@ -6,22 +6,22 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
   # How we map http methods and the indirection name in the URI
   # to an indirection method.
   METHOD_MAP = {
-      "GET" => {
-          :plural => :search,
-          :singular => :find
-      },
-      "POST" => {
-          :singular => :find,
-      },
-      "PUT" => {
-          :singular => :save
-      },
-      "DELETE" => {
-          :singular => :destroy
-      },
-      "HEAD" => {
-          :singular => :head
-      }
+    "GET" => {
+        :plural => :search,
+        :singular => :find
+    },
+    "POST" => {
+        :singular => :find,
+    },
+    "PUT" => {
+        :singular => :save
+    },
+    "DELETE" => {
+        :singular => :destroy
+    },
+    "HEAD" => {
+        :singular => :head
+    }
   }
 
   # handle an HTTP request
@@ -30,7 +30,6 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
     certificate = request.client_cert
 
     if !indirection.allow_remote_requests?
-
       # TODO: should we tell the user we found an indirection but it doesn't
       # allow remote requests, or just pretend there's no handler at all? what
       # are the security implications for the former?
@@ -43,7 +42,7 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
     end
   rescue Puppet::Network::HTTP::Error::HTTPError => e
     return do_http_control_exception(response, e)
-  rescue Exception => e
+  rescue StandardError => e
     return do_exception(response, e)
   end
 
@@ -70,7 +69,7 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
     end
 
     configured_environment = Puppet.lookup(:environments).get(environment)
-     if configured_environment.nil?
+    if configured_environment.nil?
       raise Puppet::Network::HTTP::Error::HTTPNotFoundError.new(
                 "Could not find environment '#{environment}'",
                 Puppet::Network::HTTP::Issues::ENVIRONMENT_NOT_FOUND)
