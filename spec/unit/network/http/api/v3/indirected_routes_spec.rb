@@ -34,7 +34,7 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
       :method => "PUT",
       :path => "/v3/#{indirection.name}/#{data.value}",
       :params => params,
-        :body => request[:body].nil? ? data.render("pson") : request[:body]
+      :body => request[:body].nil? ? data.render("pson") : request[:body]
     })
   end
 
@@ -46,7 +46,7 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
       :method => "DELETE",
       :path => "/v3/#{indirection.name}/#{data.value}",
       :params => params,
-        :body => ''
+      :body => ''
     })
   end
 
@@ -58,7 +58,7 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
       :method => "GET",
       :path => "/v3/#{indirection.name}/#{data.value}",
       :params => params,
-        :body => ''
+      :body => ''
     })
   end
 
