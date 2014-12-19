@@ -7,20 +7,20 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
   # to an indirection method.
   METHOD_MAP = {
     "GET" => {
-        :plural => :search,
-        :singular => :find
+      :plural => :search,
+      :singular => :find
     },
     "POST" => {
-        :singular => :find,
+      :singular => :find,
     },
     "PUT" => {
-        :singular => :save
+      :singular => :save
     },
     "DELETE" => {
-        :singular => :destroy
+      :singular => :destroy
     },
     "HEAD" => {
-        :singular => :head
+      :singular => :head
     }
   }
 
