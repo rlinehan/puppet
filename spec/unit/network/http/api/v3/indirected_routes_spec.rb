@@ -147,19 +147,19 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
     end
 
     it "should choose 'find' as the indirection method if the http method is a GET and the indirection name is singular" do
-      handler.uri2indirection("GET", "/v3/node/bar", params)[1].should == :find
+      handler.uri2indirection("GET", "#{url_prefix}/node/bar", params)[1].should == :find
     end
 
     it "should choose 'find' as the indirection method if the http method is a POST and the indirection name is singular" do
-      handler.uri2indirection("POST", "/v3/node/bar", params)[1].should == :find
+      handler.uri2indirection("POST", "#{url_prefix}/node/bar", params)[1].should == :find
     end
 
     it "should choose 'head' as the indirection method if the http method is a HEAD and the indirection name is singular" do
-      handler.uri2indirection("HEAD", "/v3/node/bar", params)[1].should == :head
+      handler.uri2indirection("HEAD", "#{url_prefix}/node/bar", params)[1].should == :head
     end
 
     it "should choose 'search' as the indirection method if the http method is a GET and the indirection name is plural" do
-      handler.uri2indirection("GET", "/v3/nodes/bar", params)[1].should == :search
+      handler.uri2indirection("GET", "#{url_prefix}/nodes/bar", params)[1].should == :search
     end
 
     it "should change indirection name to 'status' if the http method is a GET and the indirection name is statuses" do
@@ -171,11 +171,11 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
     end
 
     it "should choose 'delete' as the indirection method if the http method is a DELETE and the indirection name is singular" do
-      handler.uri2indirection("DELETE", "/v3/node/bar", params)[1].should == :destroy
+      handler.uri2indirection("DELETE", "#{url_prefix}/node/bar", params)[1].should == :destroy
     end
 
     it "should choose 'save' as the indirection method if the http method is a PUT and the indirection name is singular" do
-      handler.uri2indirection("PUT", "/v3/node/bar", params)[1].should == :save
+      handler.uri2indirection("PUT", "#{url_prefix}/node/bar", params)[1].should == :save
     end
 
     it "should fail if an indirection method cannot be picked" do
