@@ -31,9 +31,9 @@ describe Puppet::Network::HTTP::API::V3 do
 
   it "responds to unknown paths with a 404" do
     request = Puppet::Network::HTTP::Request.from_hash(:path => "#{url_prefix}/unknown")
-    Puppet::Network::HTTP::API::V3.routes.process(request, response)
 
-    expect(response.code).to eq(404)
-    expect(response.body).to match('Not Found: unknown')
+    expect do
+      Puppet::Network::HTTP::API::V3.routes.process(request, response)
+    end.to raise_error(Puppet::Network::HTTP::Error::HTTPNotFoundError)
   end
 end

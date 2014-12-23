@@ -246,9 +246,9 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
 
       indirection.expects(:allow_remote_requests?).returns(false)
 
-      handler.call(request, response)
-
-      expect(response.code).to eq(not_found_code)
+      expect do
+        handler.call(request, response)
+      end.to raise_error(Puppet::Network::HTTP::Error::HTTPNotFoundError)
     end
 
     it "should return 'bad request' if the environment does not exist" do
@@ -290,9 +290,9 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
       indirection.save(data, "my data")
       request = a_request_that_finds(data, :accept_header => nil)
 
-      handler.call(request, response)
-
-      expect(response.code).to eq(not_acceptable_code)
+      expect do
+        handler.call(request, response)
+      end.to raise_error Puppet::Network::HTTP::Error::HTTPNotAcceptableError
     end
 
     it "raises an error when no accepted formats are known" do
@@ -300,9 +300,9 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
       indirection.save(data, "my data")
       request = a_request_that_finds(data, :accept_header => "unknown, also/unknown")
 
-      handler.call(request, response)
-
-      expect(response.code).to eq(not_acceptable_code)
+      expect do
+        handler.call(request, response)
+      end.to raise_error Puppet::Network::HTTP::Error::HTTPNotAcceptableError
     end
 
     it "should pass the result through without rendering it if the result is a string" do
@@ -317,12 +317,13 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
       expect(response.type).to eq(Puppet::Network::FormatHandler.format(:pson))
     end
 
-    it "should return a not_found_code when no model instance can be found" do
+    it "should return a not found error when no model instance can be found" do
       data = Puppet::IndirectorTesting.new("my data")
       request = a_request_that_finds(data, :accept_header => "unknown, text/pson")
 
-      handler.call(request, response)
-      expect(response.code).to eq(not_found_code)
+      expect do
+        handler.call(request, response)
+      end.to raise_error Puppet::Network::HTTP::Error::HTTPNotFoundError
     end
   end
 
@@ -347,13 +348,13 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
       expect(response.type).to eq(Puppet::Network::FormatHandler.format(:pson))
     end
 
-    it "should return a not_found_code when searching returns nil" do
+    it "should return a not found error when searching returns nil" do
       request = a_request_that_searches("nothing", :accept_header => "unknown, text/pson")
       indirection.expects(:search).returns(nil)
 
-      handler.call(request, response)
-
-      expect(response.code).to eq(not_found_code)
+      expect do
+        handler.call(request, response)
+      end.to raise_error(Puppet::Network::HTTP::Error::HTTPNotFoundError)
     end
   end
 
@@ -395,9 +396,10 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
       indirection.save(data, "my data")
       request = a_request_that_destroys(data, :accept_header => "unknown, also/unknown")
 
-      handler.call(request, response)
+      expect do
+        handler.call(request, response)
+      end.to raise_error Puppet::Network::HTTP::Error::HTTPNotAcceptableError
 
-      expect(response.code).to eq(not_acceptable_code)
       Puppet::IndirectorTesting.indirection.find("my data").should_not be_nil
     end
   end
@@ -461,10 +463,11 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
       data = Puppet::IndirectorTesting.new("my data")
       request = a_request_that_submits(data, :accept_header => "unknown, also/unknown")
 
-      handler.call(request, response)
+      expect do
+        handler.call(request, response)
+      end.to raise_error Puppet::Network::HTTP::Error::HTTPNotAcceptableError
 
       expect(Puppet::IndirectorTesting.indirection.find("my data")).to be_nil
-      expect(response.code).to eq(not_acceptable_code)
     end
   end
 
@@ -479,15 +482,13 @@ describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
       expect(response.code).to eq(nil)
     end
 
-    it "should return a not_found_code when the model head call returns false" do
+    it "should return a not found error when the model head call returns false" do
       data = Puppet::IndirectorTesting.new("my data")
       request = a_request_that_heads(data)
 
-      handler.call(request, response)
-
-      expect(response.code).to eq(not_found_code)
-      expect(response.type).to eq("text/plain")
-      expect(response.body).to eq("Not Found: Could not find indirector_testing my data")
+      expect do
+        handler.call(request, response)
+      end.to raise_error Puppet::Network::HTTP::Error::HTTPNotFoundError
     end
   end
 end

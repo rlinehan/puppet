@@ -44,8 +44,8 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
     Puppet.override(:trusted_information => trusted) do
       send("do_#{method}", indirection, key, params, request, response)
     end
-  rescue Puppet::Network::HTTP::Error::HTTPError => e
-    return do_http_control_exception(response, e)
+#  rescue Puppet::Network::HTTP::Error::HTTPError => e
+#    return do_http_control_exception(response, e)
   rescue StandardError => e
     return do_exception(response, e)
   end
