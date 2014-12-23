@@ -1003,7 +1003,7 @@ EOT
     },
     :master_url_prefix => {
         :default => "/puppet",
-        :desc    => "TODO",
+        :desc    => "The prefix at which the puppet master api is mounted.",
         :hook    => proc do |value|
           if !value.start_with?("/")
             Puppet[:master_url_prefix] = "/#{value}"
