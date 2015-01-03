@@ -14,9 +14,13 @@ class Puppet::Network::HTTP::API::V3
     Environments.new(Puppet.lookup(:environments))
   end)
 
-  def self.routes
+  def self.master_routes
     Puppet::Network::HTTP::Route.path(%r{/v3}).
         any.
         chain(ENVIRONMENTS, INDIRECTED)
+  end
+
+  def self.ca_routes
+    Puppet::Network::HTTP::Route.path(%r{/v1}).any.chain(INDIRECTED)
   end
 end

@@ -1,4 +1,5 @@
 require 'puppet/network/authorization'
+require 'puppet/network/http/api/v3/indirection_type'
 
 class Puppet::Network::HTTP::API::V3::IndirectedRoutes
   include Puppet::Network::Authorization
@@ -23,6 +24,8 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
       :singular => :head
     }
   }
+
+  IndirectionType = Puppet::Network::HTTP::API::V3::IndirectionType
 
   def self.routes
     Puppet::Network::HTTP::Route.path(/.*/).any(new)
@@ -50,8 +53,16 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
     return do_exception(response, e)
   end
 
-  def self.url_prefix
+  def self.master_url_prefix
     "#{Puppet[:master_url_prefix]}/v3"
+  end
+
+  def self.ca_url_prefix
+    "#{Puppet[:ca_url_prefix]}/v1"
+  end
+
+  def self.url_prefix_for_indirection(indirection_name)
+    IndirectionType.type_for(indirection_name) == :ca ? ca_url_prefix : master_url_prefix
   end
 
   def uri2indirection(http_method, uri, params)
@@ -63,8 +74,10 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
       raise ArgumentError, "The indirection name must be purely alphanumeric, not '#{indirection_name}'"
     end
 
+    url_prefix = self.class.url_prefix_for_indirection(indirection_name)
+
     method = indirection_method(http_method, indirection_name)
-    check_authorization(method, "#{self.class.url_prefix}/#{indirection_name}/#{key}", params)
+    check_authorization(method, "#{url_prefix}/#{indirection_name}/#{key}", params)
 
     indirection = Puppet::Indirector::Indirection.instance(indirection_name.to_sym)
     if !indirection
@@ -214,6 +227,7 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
   end
 
   def self.request_to_uri_and_body(request)
+    url_prefix = url_prefix_for_indirection(request.indirection_name.to_s)
     indirection = request.method == :search ? pluralize(request.indirection_name.to_s) : request.indirection_name.to_s
     ["#{url_prefix}/#{indirection}/#{request.escaped_key}", "environment=#{request.environment.name}&#{request.query_string}"]
   end
