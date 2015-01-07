@@ -15,12 +15,12 @@ class Puppet::Network::HTTP::API::V3
   end)
 
   def self.master_routes
-    Puppet::Network::HTTP::Route.path(%r{/v3}).
+    Puppet::Network::HTTP::Route.path(%r{v3}).
         any.
         chain(ENVIRONMENTS, INDIRECTED)
   end
 
   def self.ca_routes
-    Puppet::Network::HTTP::Route.path(%r{/v1}).any.chain(INDIRECTED)
+    Puppet::Network::HTTP::Route.path(%r{v1}).any.chain(INDIRECTED)
   end
 end

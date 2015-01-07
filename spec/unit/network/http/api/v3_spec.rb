@@ -8,14 +8,14 @@ describe Puppet::Network::HTTP::API::V3 do
   let(:ca_url_prefix) { "#{Puppet[:ca_url_prefix]}/v1"}
   let(:master_routes) {
     Puppet::Network::HTTP::Route.
-        path(Regexp.new(Puppet[:master_url_prefix])).
+        path(Regexp.new("#{Puppet[:master_url_prefix]}/")).
         any.
         chain(Puppet::Network::HTTP::API::V3.master_routes)
   }
 
   let(:ca_routes) {
     Puppet::Network::HTTP::Route.
-      path(Regexp.new(Puppet[:ca_url_prefix])).
+      path(Regexp.new("#{Puppet[:ca_url_prefix]}/")).
       any.
       chain(Puppet::Network::HTTP::API::V3.ca_routes)
   }

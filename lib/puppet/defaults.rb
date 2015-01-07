@@ -1011,7 +1011,7 @@ EOT
         end
     },
     :ca_url_prefix => {
-        :default => "/ca",
+        :default => "/puppet-ca",
         :desc    => "The prefix at which the puppet certificate authority API is mounted.",
         :hook    => proc do |value|
           if !value.start_with?("/")
