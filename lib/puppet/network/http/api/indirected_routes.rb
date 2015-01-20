@@ -1,7 +1,7 @@
 require 'puppet/network/authorization'
-require 'puppet/network/http/api/v3/indirection_type'
+require 'puppet/network/http/api/indirection_type'
 
-class Puppet::Network::HTTP::API::V3::IndirectedRoutes
+class Puppet::Network::HTTP::API::IndirectedRoutes
   include Puppet::Network::Authorization
 
   # How we map http methods and the indirection name in the URI
@@ -25,7 +25,7 @@ class Puppet::Network::HTTP::API::V3::IndirectedRoutes
     }
   }
 
-  IndirectionType = Puppet::Network::HTTP::API::V3::IndirectionType
+  IndirectionType = Puppet::Network::HTTP::API::IndirectionType
 
   def self.routes
     Puppet::Network::HTTP::Route.path(/.*/).any(new)

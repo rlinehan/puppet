@@ -1,4 +1,4 @@
-class Puppet::Network::HTTP::API::V3::IndirectionType
+class Puppet::Network::HTTP::API::IndirectionType
 
   INDIRECTION_TYPE_MAP = {
     "certificate" => :ca,

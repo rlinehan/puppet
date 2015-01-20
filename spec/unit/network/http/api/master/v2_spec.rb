@@ -2,11 +2,11 @@ require 'spec_helper'
 
 require 'puppet/network/http'
 
-describe Puppet::Network::HTTP::API::V2 do
+describe Puppet::Network::HTTP::API::Master::V2 do
   let(:response) { Puppet::Network::HTTP::MemoryResponse.new }
   let(:routes) { Puppet::Network::HTTP::Route.path(Regexp.new("/puppet/")).
                   any.
-                  chain(Puppet::Network::HTTP::API::V2.routes) }
+                  chain(Puppet::Network::HTTP::API::Master::V2.routes) }
 
   it "mounts the environments endpoint" do
     request = Puppet::Network::HTTP::Request.from_hash(:path => "/puppet/v2.0/environments")

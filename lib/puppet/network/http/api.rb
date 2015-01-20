@@ -14,8 +14,8 @@ class Puppet::Network::HTTP::API
     end
     Puppet::Network::HTTP::Route.path(Regexp.new("^#{master_prefix}")).
       any.
-      chain(Puppet::Network::HTTP::API::V3.master_routes,
-            Puppet::Network::HTTP::API::V2.routes,
+      chain(Puppet::Network::HTTP::API::Master::V3.routes,
+            Puppet::Network::HTTP::API::Master::V2.routes,
             Puppet::Network::HTTP::API.not_found)
   end
 
@@ -26,7 +26,7 @@ class Puppet::Network::HTTP::API
     end
     Puppet::Network::HTTP::Route.path(Regexp.new("^#{ca_prefix}")).
       any.
-      chain(Puppet::Network::HTTP::API::V3.ca_routes,
+      chain(Puppet::Network::HTTP::API::CA::V1.routes,
             Puppet::Network::HTTP::API.not_found)
   end
 end

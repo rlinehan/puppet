@@ -2,17 +2,17 @@
 require 'spec_helper'
 
 require 'puppet/network/http'
-require 'puppet/network/http/api/v3/indirected_routes'
+require 'puppet/network/http/api/indirected_routes'
 require 'puppet/indirector_testing'
 
-describe Puppet::Network::HTTP::API::V3::IndirectedRoutes do
+describe Puppet::Network::HTTP::API::IndirectedRoutes do
   let(:not_found_code) { Puppet::Network::HTTP::Error::HTTPNotFoundError::CODE }
   let(:not_acceptable_code) { Puppet::Network::HTTP::Error::HTTPNotAcceptableError::CODE }
   let(:bad_request_code) { Puppet::Network::HTTP::Error::HTTPBadRequestError::CODE }
   let(:not_authorized_code) { Puppet::Network::HTTP::Error::HTTPNotAuthorizedError::CODE }
 
   let(:indirection) { Puppet::IndirectorTesting.indirection }
-  let(:handler) { Puppet::Network::HTTP::API::V3::IndirectedRoutes.new }
+  let(:handler) { Puppet::Network::HTTP::API::IndirectedRoutes.new }
   let(:response) { Puppet::Network::HTTP::MemoryResponse.new }
   let(:params) { { :environment => "production" } }
   let(:master_url_prefix) { "#{Puppet[:master_url_prefix]}/v3"}
