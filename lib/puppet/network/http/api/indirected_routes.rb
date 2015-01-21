@@ -53,18 +53,6 @@ class Puppet::Network::HTTP::API::IndirectedRoutes
     return do_exception(response, e)
   end
 
-  def self.master_url_prefix
-    "#{Puppet[:master_url_prefix]}/v3"
-  end
-
-  def self.ca_url_prefix
-    "#{Puppet[:ca_url_prefix]}/v1"
-  end
-
-  def self.url_prefix_for_indirection(indirection_name)
-    IndirectionType.type_for(indirection_name) == :ca ? ca_url_prefix : master_url_prefix
-  end
-
   def uri2indirection(http_method, uri, params)
     # the first field is always nil because of the leading slash,
     indirection_type, version, indirection_name, key = uri.split("/", 5)[1..-1]
@@ -80,7 +68,7 @@ class Puppet::Network::HTTP::API::IndirectedRoutes
 
     # check whether this indirection matches the prefix and version in the
     # request
-    if url_prefix != self.class.url_prefix_for_indirection(indirection_name)
+    if url_prefix != IndirectionType.url_prefix_for(indirection_name)
       raise ArgumentError, "Indirection '#{indirection_name}' does not match url prefix '#{url_prefix}'"
     end
 
@@ -234,7 +222,7 @@ class Puppet::Network::HTTP::API::IndirectedRoutes
   end
 
   def self.request_to_uri_and_body(request)
-    url_prefix = url_prefix_for_indirection(request.indirection_name.to_s)
+    url_prefix = IndirectionType.url_prefix_for(request.indirection_name.to_s)
     indirection = request.method == :search ? pluralize(request.indirection_name.to_s) : request.indirection_name.to_s
     ["#{url_prefix}/#{indirection}/#{request.escaped_key}", "environment=#{request.environment.name}&#{request.query_string}"]
   end
