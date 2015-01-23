@@ -6,11 +6,11 @@ module Puppet
     attr_accessor :rights
 
     def self.master_url_prefix
-      Puppet[:master_url_prefix]
+      Puppet::Network::HTTP::MASTER_URL_PREFIX
     end
 
     def self.ca_url_prefix
-      Puppet[:ca_url_prefix]
+      Puppet::Network::HTTP::CA_URL_PREFIX
     end
 
     def self.default_acl

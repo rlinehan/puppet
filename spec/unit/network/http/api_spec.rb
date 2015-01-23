@@ -40,8 +40,8 @@ describe Puppet::Network::HTTP::API do
     let(:handler) { PuppetSpec::Handler.new(Puppet::Network::HTTP::API.master_routes,
                                             Puppet::Network::HTTP::API.ca_routes) }
 
-    let(:master_prefix) { Puppet[:master_url_prefix] }
-    let(:ca_prefix) { Puppet[:ca_url_prefix] }
+    let(:master_prefix) { Puppet::Network::HTTP::MASTER_URL_PREFIX }
+    let(:ca_prefix) { Puppet::Network::HTTP::CA_URL_PREFIX }
 
     it "raises a not-found error for non-CA or master routes" do
       req = Puppet::Network::HTTP::Request.from_hash(:path => "/unknown")
@@ -80,16 +80,6 @@ describe Puppet::Network::HTTP::API do
         handler.process(req, res)
         expect(res[:status]).to eq(404)
       end
-
-      it "only matches the prefix" do
-        Puppet[:master_url_prefix] = "/a"
-        req = Puppet::Network::HTTP::Request.from_hash(:path => "/puppet/v3/node/all")
-        res = {}
-
-        handler.process(req, res)
-        expect(res[:status]).to eq(404)
-        expect(JSON.parse(res[:body])['issue_kind']).to eq("HANDLER_NOT_FOUND")
-      end
     end
 
     describe "when processing CA routes" do
@@ -105,7 +95,7 @@ describe Puppet::Network::HTTP::API do
       end
 
       it "responds with a not found error to non-v1 requests" do
-        req = Puppet::Network::HTTP::Request.from_hash(:path => "/ca/unknown")
+        req = Puppet::Network::HTTP::Request.from_hash(:path => "#{ca_prefix}/unknown")
         res = {}
         handler.process(req, res)
         expect(res[:status]).to eq(404)

@@ -4,11 +4,10 @@ require 'puppet/network/http'
 
 describe Puppet::Network::HTTP::API::Master::V3 do
   let(:response) { Puppet::Network::HTTP::MemoryResponse.new }
-  let(:master_url_prefix) { "#{Puppet[:master_url_prefix]}/v3"}
-  let(:ca_url_prefix) { "#{Puppet[:ca_url_prefix]}/v1"}
+  let(:master_url_prefix) { "#{Puppet::Network::HTTP::MASTER_URL_PREFIX}/v3" }
   let(:master_routes) {
     Puppet::Network::HTTP::Route.
-        path(Regexp.new("#{Puppet[:master_url_prefix]}/")).
+        path(Regexp.new("#{Puppet::Network::HTTP::MASTER_URL_PREFIX}/")).
         any.
         chain(Puppet::Network::HTTP::API::Master::V3.routes)
   }

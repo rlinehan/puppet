@@ -8,11 +8,11 @@ class Puppet::Network::HTTP::API::IndirectionType
   }
 
   def self.master_url_prefix
-    "#{Puppet[:master_url_prefix]}/v3"
+    "#{Puppet::Network::HTTP::MASTER_URL_PREFIX}/v3"
   end
 
   def self.ca_url_prefix
-    "#{Puppet[:ca_url_prefix]}/v1"
+    "#{Puppet::Network::HTTP::CA_URL_PREFIX}/v1"
   end
 
   def self.type_for(indirection)

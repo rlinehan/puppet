@@ -15,8 +15,8 @@ describe Puppet::Network::HTTP::API::IndirectedRoutes do
   let(:handler) { Puppet::Network::HTTP::API::IndirectedRoutes.new }
   let(:response) { Puppet::Network::HTTP::MemoryResponse.new }
   let(:params) { { :environment => "production" } }
-  let(:master_url_prefix) { "#{Puppet[:master_url_prefix]}/v3"}
-  let(:ca_url_prefix) { "#{Puppet[:ca_url_prefix]}/v1"}
+  let(:master_url_prefix) { "#{Puppet::Network::HTTP::MASTER_URL_PREFIX}/v3"}
+  let(:ca_url_prefix) { "#{Puppet::Network::HTTP::CA_URL_PREFIX}/v1"}
 
   def a_request_that_heads(data, request = {})
     Puppet::Network::HTTP::Request.from_hash({
@@ -116,7 +116,7 @@ describe Puppet::Network::HTTP::API::IndirectedRoutes do
     end
 
     it "should fail if the indirection does not have the correct version" do
-      lambda { handler.uri2indirection("GET", "#{Puppet[:ca_url_prefix]}/v3/certificate/foo", params) }.should raise_error(ArgumentError)
+      lambda { handler.uri2indirection("GET", "#{Puppet::Network::HTTP::CA_URL_PREFIX}/v3/certificate/foo", params) }.should raise_error(ArgumentError)
     end
 
     it "should not pass a buck_path parameter through (See Bugs #13553, #13518, #13511)" do

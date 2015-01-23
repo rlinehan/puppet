@@ -2,6 +2,9 @@ module Puppet::Network::HTTP
   HEADER_ENABLE_PROFILING = "X-Puppet-Profiling"
   HEADER_PUPPET_VERSION = "X-Puppet-Version"
 
+  MASTER_URL_PREFIX = "/puppet"
+  CA_URL_PREFIX = "/puppet-ca"
+
   require 'puppet/network/authorization'
   require 'puppet/network/http/issues'
   require 'puppet/network/http/error'

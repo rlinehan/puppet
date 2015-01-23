@@ -4,11 +4,11 @@ require 'puppet/network/http'
 
 describe Puppet::Network::HTTP::API::CA::V1 do
   let(:response) { Puppet::Network::HTTP::MemoryResponse.new }
-  let(:ca_url_prefix) { "#{Puppet[:ca_url_prefix]}/v1"}
+  let(:ca_url_prefix) { "#{Puppet::Network::HTTP::CA_URL_PREFIX}/v1"}
 
   let(:ca_routes) {
     Puppet::Network::HTTP::Route.
-      path(Regexp.new("#{Puppet[:ca_url_prefix]}/")).
+      path(Regexp.new("#{Puppet::Network::HTTP::CA_URL_PREFIX}/")).
       any.
       chain(Puppet::Network::HTTP::API::CA::V1.routes)
   }
